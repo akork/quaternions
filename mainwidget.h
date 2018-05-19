@@ -95,7 +95,7 @@ private:
     QVector3D rotationAxis;
     qreal angularSpeed;
     QQuaternion rotation;
-    QVector<SimpleObject3D> objects;
+    QVector<SimpleObject3D*> objects;
     void initObjects();
 
 private slots:

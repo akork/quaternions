@@ -142,7 +142,7 @@ void MainWidget::initShaders()
 
 void MainWidget::initObjects()
 {
-  objects.append(SimpleObject3D(cubeGeometry->vertices, cubeGeometry->indices, new QImage(":/cube.png")));
+  objects.append(new SimpleObject3D(cubeGeometry->vertices, cubeGeometry->indices, new QImage(":/cube.png")));
 }
 
 void MainWidget::updateScene(KinematicVariables vars)
@@ -186,5 +186,5 @@ void MainWidget::paintGL()
 
     // Draw cube geometry
     int i = 0;
-    objects[i].draw(&program);
+    objects[i]->draw(&program);
 }
