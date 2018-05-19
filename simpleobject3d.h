@@ -5,6 +5,7 @@
 #include <QMatrix4x4>
 #include <QVector3D>
 #include <QVector2D>
+#include <QOpenGLFunctions>
 
 class QOpenGLTexture;
 class QOpenGLFunctions;
@@ -16,21 +17,21 @@ struct VertexData
     QVector2D texCoord;
 };
 
-class SimpleObject3D
+class SimpleObject3D : protected QOpenGLFunctions
 {
 public:
   SimpleObject3D();
-  SimpleObject3D(const QVector<VertexData> &vertData, const QVector<GLuint> &indexes,
-                 const QImage &texture);
+  SimpleObject3D(const QVector<VertexData> &vertData, const QVector<GLushort> &indexes,
+                 const QImage *texture = 0);
   ~SimpleObject3D();
-  void init(const QVector<VertexData> &vertData, const QVector<GLuint> &indexes, const QImage &texture);
-  void draw(QOpenGLShaderProgram *program, QOpenGLFunctions *functions);
-
+  void init(const QVector<VertexData> &vertData, const QVector<GLushort> &indexes, const QImage *textureImage);
+  void draw(QOpenGLShaderProgram *program);
+  void initTexture(const QImage *textureImage);
 private:
-  QOpenGLBuffer m_vertexBuffer;
-  QOpenGLBuffer m_indexBuffer;
-  QMatrix4x4 m_modelMatrix;
-  QOpenGLTexture *m_texture;
+  QOpenGLBuffer arrayBuf;
+  QOpenGLBuffer indexBuf;
+  QMatrix4x4 modelMat;
+  QOpenGLTexture *texture;
 };
 
 #endif // SIMPLEOBJECT3D_H

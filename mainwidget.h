@@ -63,7 +63,7 @@
 #include <QOpenGLTexture>
 #include "kinematicvariables.h"
 
-class GeometryEngine;
+struct CubeGeometry;
 
 class MainWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -82,11 +82,10 @@ protected:
     void paintGL() override;
 
     void initShaders();
-    void initTextures();
 
 private:
     QOpenGLShaderProgram program;
-    GeometryEngine *geometries;
+    CubeGeometry *cubeGeometry;
 
     QOpenGLTexture *texture;
 
@@ -96,6 +95,8 @@ private:
     QVector3D rotationAxis;
     qreal angularSpeed;
     QQuaternion rotation;
+    QVector<SimpleObject3D> objects;
+    void initObjects();
 
 private slots:
     void updateScene(KinematicVariables vars);

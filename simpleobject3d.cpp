@@ -4,43 +4,131 @@
 #include <QOpenGLShaderProgram>
 
 SimpleObject3D::SimpleObject3D() :
-  m_indexBuffer(QOpenGLBuffer::IndexBuffer), m_texture(0)
+  indexBuf(QOpenGLBuffer::IndexBuffer), texture(0)
 {
 
 }
 
-SimpleObject3D::SimpleObject3D(const QVector<VertexData> &vertData, const QVector<GLuint> &indexes, const QImage &texture) :
-  m_indexBuffer(QOpenGLBuffer::IndexBuffer), m_texture(0)
+SimpleObject3D::SimpleObject3D(const QVector<VertexData> &vertData, const QVector<GLushort> &indexes, const QImage *texture) :
+  indexBuf(QOpenGLBuffer::IndexBuffer), texture(0)
 {
+  initializeOpenGLFunctions();
   init(vertData, indexes, texture);
 }
 
 SimpleObject3D::~SimpleObject3D()
 {
-  if (m_vertexBuffer.isCreated())
-    m_vertexBuffer.destroy();
-  if (m_indexBuffer.isCreated())
-    m_indexBuffer.destroy();
-  if (m_texture != 0 && m_texture->isCreated())
-    m_texture->destroy();
+  if (arrayBuf.isCreated())
+    arrayBuf.destroy();
+  if (indexBuf.isCreated())
+    indexBuf.destroy();
+  if (texture != 0 && texture->isCreated())
+    texture->destroy();
 }
 
-void SimpleObject3D::init(const QVector<VertexData> &vertData, const QVector<GLuint> &indexes, const QImage &texture)
+void SimpleObject3D::initTexture(const QImage *textureImage)
 {
-  m_vertexBuffer.create();
-  m_vertexBuffer.bind();
-  m_vertexBuffer.allocate(vertData.constData(), vertData.size() * sizeof(VertexData));
-  m_vertexBuffer.release();
+//  if (!textureImage) return;
+    // Load cube.png image
+//    texture = new QOpenGLTexture(textureImage->mirrored());
+    texture = new QOpenGLTexture(QImage(":/cube.png").mirrored());
 
-  m_indexBuffer.create();
-  m_indexBuffer.bind();
-  m_indexBuffer.allocate(indexes.constData(), indexes.size() * sizeof(GLuint));
-  m_indexBuffer.release();
+    // Set nearest filtering mode for texture minification
+    texture->setMinificationFilter(QOpenGLTexture::Nearest);
 
-  m_texture = new QOpenGLTexture(texture.mirrored());
+    // Set bilinear filtering mode for texture magnification
+    texture->setMagnificationFilter(QOpenGLTexture::Linear);
+
+    // Wrap texture coordinates by repeating
+    // f.ex. texture coordinate (1.1, 1.2) is same as (0.1, 0.2)
+    texture->setWrapMode(QOpenGLTexture::Repeat);
 }
 
-void SimpleObject3D::draw(QOpenGLShaderProgram *program, QOpenGLFunctions *functions)
+void SimpleObject3D::init(const QVector<VertexData> &vertices, const QVector<GLushort> &indices, const QImage *textureImage)
 {
+  initTexture(textureImage);
 
+  VertexData vvertices[] =
+    {
+        // Vertex data for face 0
+        {QVector3D(-1.0f, -1.0f,  1.0f), QVector2D(0.0f, 0.0f)},  // v0
+        {QVector3D( 1.0f, -1.0f,  1.0f), QVector2D(0.33f, 0.0f)}, // v1
+        {QVector3D(-1.0f,  1.0f,  1.0f), QVector2D(0.0f, 0.5f)},  // v2
+        {QVector3D( 1.0f,  1.0f,  1.0f), QVector2D(0.33f, 0.5f)}, // v3
+
+        // Vertex data for face 1
+        {QVector3D( 1.0f, -1.0f,  1.0f), QVector2D( 0.0f, 0.5f)}, // v4
+        {QVector3D( 1.0f, -1.0f, -1.0f), QVector2D(0.33f, 0.5f)}, // v5
+        {QVector3D( 1.0f,  1.0f,  1.0f), QVector2D(0.0f, 1.0f)},  // v6
+        {QVector3D( 1.0f,  1.0f, -1.0f), QVector2D(0.33f, 1.0f)}, // v7
+
+        // Vertex data for face 2
+        {QVector3D( 1.0f, -1.0f, -1.0f), QVector2D(0.66f, 0.5f)}, // v8
+        {QVector3D(-1.0f, -1.0f, -1.0f), QVector2D(1.0f, 0.5f)},  // v9
+        {QVector3D( 1.0f,  1.0f, -1.0f), QVector2D(0.66f, 1.0f)}, // v10
+        {QVector3D(-1.0f,  1.0f, -1.0f), QVector2D(1.0f, 1.0f)},  // v11
+
+        // Vertex data for face 3
+        {QVector3D(-1.0f, -1.0f, -1.0f), QVector2D(0.66f, 0.0f)}, // v12
+        {QVector3D(-1.0f, -1.0f,  1.0f), QVector2D(1.0f, 0.0f)},  // v13
+        {QVector3D(-1.0f,  1.0f, -1.0f), QVector2D(0.66f, 0.5f)}, // v14
+        {QVector3D(-1.0f,  1.0f,  1.0f), QVector2D(1.0f, 0.5f)},  // v15
+
+        // Vertex data for face 4
+        {QVector3D(-1.0f, -1.0f, -1.0f), QVector2D(0.33f, 0.0f)}, // v16
+        {QVector3D( 1.0f, -1.0f, -1.0f), QVector2D(0.66f, 0.0f)}, // v17
+        {QVector3D(-1.0f, -1.0f,  1.0f), QVector2D(0.33f, 0.5f)}, // v18
+        {QVector3D( 1.0f, -1.0f,  1.0f), QVector2D(0.66f, 0.5f)}, // v19
+
+        // Vertex data for face 5
+        {QVector3D(-1.0f,  1.0f,  1.0f), QVector2D(0.33f, 0.5f)}, // v20
+        {QVector3D( 1.0f,  1.0f,  1.0f), QVector2D(0.66f, 0.5f)}, // v21
+        {QVector3D(-1.0f,  1.0f, -1.0f), QVector2D(0.33f, 1.0f)}, // v22
+        {QVector3D( 1.0f,  1.0f, -1.0f), QVector2D(0.66f, 1.0f)}  // v23
+    };
+ GLushort iindices[] = {
+         0,  1,  2,  3,  3,     // Face 0 - triangle strip ( v0,  v1,  v2,  v3)
+         4,  4,  5,  6,  7,  7, // Face 1 - triangle strip ( v4,  v5,  v6,  v7)
+         8,  8,  9, 10, 11, 11, // Face 2 - triangle strip ( v8,  v9, v10, v11)
+        12, 12, 13, 14, 15, 15, // Face 3 - triangle strip (v12, v13, v14, v15)
+        16, 16, 17, 18, 19, 19, // Face 4 - triangle strip (v16, v17, v18, v19)
+        20, 20, 21, 22, 23      // Face 5 - triangle strip (v20, v21, v22, v23)
+    };
+  // Transfer vertex data to VBO 0
+  arrayBuf.bind();
+  arrayBuf.allocate(vvertices, 24 * sizeof(VertexData));
+  arrayBuf.release();
+
+  // Transfer index data to VBO 1
+  indexBuf.bind();
+  indexBuf.allocate(iindices, 34 * sizeof(GLushort));
+  indexBuf.release();
+}
+
+void SimpleObject3D::draw(QOpenGLShaderProgram *program)
+{
+    // Tell OpenGL which VBOs to use
+    arrayBuf.bind();
+    indexBuf.bind();
+
+    // Offset for position
+    quintptr offset = 0;
+
+    // Tell OpenGL programmable pipeline how to locate vertex position data
+    int vertexLocation = program->attributeLocation("a_position");
+    program->enableAttributeArray(vertexLocation);
+    program->setAttributeBuffer(vertexLocation, GL_FLOAT, offset, 3, sizeof(VertexData));
+
+    // Offset for texture coordinate
+    offset += sizeof(QVector3D);
+
+    // Tell OpenGL programmable pipeline how to locate vertex texture coordinate data
+    int texcoordLocation = program->attributeLocation("a_texcoord");
+    program->enableAttributeArray(texcoordLocation);
+    program->setAttributeBuffer(texcoordLocation, GL_FLOAT, offset, 2, sizeof(VertexData));
+
+//    texture->bind();
+//    program->setUniformValue("texture", 0);
+    // Draw cube geometry using indices from VBO 1
+    glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
 }

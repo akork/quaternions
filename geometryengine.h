@@ -56,20 +56,12 @@
 #include <QOpenGLBuffer>
 #include "simpleobject3d.h"
 
-class GeometryEngine : protected QOpenGLFunctions
+
+struct CubeGeometry
 {
-public:
-    GeometryEngine();
-    virtual ~GeometryEngine();
-
-    void drawCubeGeometry(QOpenGLShaderProgram *program);
-
-private:
-    void initCubeGeometry();
-
-    QOpenGLBuffer arrayBuf;
-    QOpenGLBuffer indexBuf;
-    QVector<SimpleObject3D> objects;
+   CubeGeometry();
+   QVector<VertexData> vertices;
+   QVector<GLushort> indices;
 };
 
 #endif // GEOMETRYENGINE_H

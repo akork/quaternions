@@ -57,7 +57,7 @@
 
 MainWidget::MainWidget(QWidget *parent) :
     QOpenGLWidget(parent),
-    geometries(0),
+    cubeGeometry(0),
     texture(0),
     angularSpeed(0)
 {
@@ -69,7 +69,7 @@ MainWidget::~MainWidget()
     // and the buffers.
     makeCurrent();
     delete texture;
-    delete geometries;
+    delete cubeGeometry;
     doneCurrent();
 }
 
@@ -107,7 +107,6 @@ void MainWidget::initializeGL()
     glClearColor(0, 0, 0, 1);
 
     initShaders();
-    initTextures();
 
 //! [2]
     // Enable depth buffer
@@ -117,7 +116,8 @@ void MainWidget::initializeGL()
     glEnable(GL_CULL_FACE);
 //! [2]
 
-    geometries = new GeometryEngine;
+    cubeGeometry = new CubeGeometry;
+    initObjects();
 }
 
 //! [3]
@@ -139,23 +139,10 @@ void MainWidget::initShaders()
     if (!program.bind())
         close();
 }
-//! [3]
 
-//! [4]
-void MainWidget::initTextures()
+void MainWidget::initObjects()
 {
-    // Load cube.png image
-    texture = new QOpenGLTexture(QImage(":/cube.png").mirrored());
-
-    // Set nearest filtering mode for texture minification
-    texture->setMinificationFilter(QOpenGLTexture::Nearest);
-
-    // Set bilinear filtering mode for texture magnification
-    texture->setMagnificationFilter(QOpenGLTexture::Linear);
-
-    // Wrap texture coordinates by repeating
-    // f.ex. texture coordinate (1.1, 1.2) is same as (0.1, 0.2)
-    texture->setWrapMode(QOpenGLTexture::Repeat);
+  objects.append(SimpleObject3D(cubeGeometry->vertices, cubeGeometry->indices, new QImage(":/cube.png")));
 }
 
 void MainWidget::updateScene(KinematicVariables vars)
@@ -185,9 +172,7 @@ void MainWidget::paintGL()
     // Clear color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    texture->bind();
 
-//! [6]
     // Calculate model view transformation
     QMatrix4x4 matrix;
     matrix.translate(0.0, 0.0, -5.0);
@@ -198,9 +183,8 @@ void MainWidget::paintGL()
 //! [6]
 
     // Use texture unit 0 which contains cube.png
-    program.setUniformValue("texture", 0);
 
     // Draw cube geometry
-    geometries->drawCubeGeometry(&program);
-
+    int i = 0;
+    objects[i].draw(&program);
 }
