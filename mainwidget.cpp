@@ -59,8 +59,10 @@ MainWidget::MainWidget(QWidget *parent) :
     QOpenGLWidget(parent),
     cubeGeometry(0),
     texture(0),
-    angularSpeed(0)
+    angularSpeed(0),
+    window(parent)
 {
+
 }
 
 MainWidget::~MainWidget()
@@ -76,12 +78,15 @@ MainWidget::~MainWidget()
 //! [0]
 void MainWidget::mousePressEvent(QMouseEvent *e)
 {
-    // Save mouse press position
+  if ((e->buttons() == Qt::LeftButton) || (e->buttons() == Qt::RightButton))
     mousePressPosition = QVector2D(e->localPos());
+  e->accept();
 }
 
 void MainWidget::mouseReleaseEvent(QMouseEvent *e)
 {
+  quaternion = QQuaternion::fromEulerAngles(0, 0, 0);
+  return;
     // Mouse release position - mouse press position
     QVector2D diff = QVector2D(e->localPos()) - mousePressPosition;
 
@@ -98,13 +103,82 @@ void MainWidget::mouseReleaseEvent(QMouseEvent *e)
     // Increase angular speed
     angularSpeed += acc;
 }
+
+void MainWidget::mouseMoveEvent(QMouseEvent *e)
+{
+  if (e->buttons() == Qt::LeftButton)
+  {
+    QVector2D diff = QVector2D(e->localPos()) - mousePressPosition;
+    double angle = diff.length()/3;
+    int direction = -1;
+    vert_angle = vert_angle + direction * (e->localPos().y() - mousePressPosition.y()) / 100;
+    hor_angle -= (e->localPos().x() - mousePressPosition.x()) / 100;
+    double pitch = (e->localPos().y() - mousePressPosition.y()) / 2;
+    double yaw = (e->localPos().x() - mousePressPosition.x()) / 2;
+    mousePressPosition = QVector2D(e->localPos());
+    QVector3D axis = QVector3D(diff.y(), diff.x(), 0);
+
+//    axis = cameraQuat;
+    auto axisQuat = QQuaternion(0.0f, axis);
+    auto cameraInv = cameraQuat.inverted();
+    auto modelQuat = objects[0]->quaternion;
+    auto modelInv = modelQuat.inverted();
+    axisQuat = modelInv * cameraInv * axisQuat * cameraInv.conjugated() * modelInv.conjugated();
+//    quaternion = QQuaternion::fromEulerAngles(pitch, yaw, 0);
+    quaternion = QQuaternion::fromAxisAndAngle(axisQuat.vector(), angle);
+
+
+
+//    quaternion = cameraQuat * quaternion;
+//    quaternion = cameraQuat * quaternion * cameraQuat.conjugated();
+
+//    auto modelQuat = objects[0]->quaternion;
+//    modelQuat *= cameraQuat.inverted();
+//    modelQuat *= quaternion;
+//    modelQuat *= cameraQuat;
+
+    objects[0]->rotate(quaternion);
+    objects[1]->rotate(quaternion);
+//    auto modelMat = objects[0]->modelMat;
+//    modelMat *= viewMatrix;
+//    modelMat.rotate(quaternion);
+//    modelMat *= viewMatrix.inverted();
+    needToUpdate = true;
+ }
+  if (e->buttons() == Qt::RightButton)
+  {
+    QVector2D diff = QVector2D(e->localPos()) - mousePressPosition;
+    double angle = diff.length()/3;
+    int direction = -1;
+    vert_angle = vert_angle + direction * (e->localPos().y() - mousePressPosition.y()) / 100;
+    hor_angle -= (e->localPos().x() - mousePressPosition.x()) / 100;
+    double pitch = (e->localPos().y() - mousePressPosition.y()) / 2;
+    double yaw = (e->localPos().x() - mousePressPosition.x()) / 2;
+    mousePressPosition = QVector2D(e->localPos());
+    QVector3D axis = QVector3D(diff.y(), diff.x(), 0);
+
+
+    quaternion = QQuaternion::fromEulerAngles(pitch, yaw, 0);
+    quaternion = QQuaternion::fromAxisAndAngle(axis, angle);
+    cameraQuat = quaternion * cameraQuat;
+    QMatrix4x4 rotateMat;
+    rotateMat.setToIdentity();
+    rotateMat.rotate(cameraQuat);
+    QMatrix4x4 translateMat;
+    translateMat.setToIdentity();
+    translateMat.translate(0, 0, -6);
+    viewMatrix = translateMat * rotateMat;
+    needToUpdate = true;
+  }
+}
 //! [0]
 
 void MainWidget::initializeGL()
 {
     initializeOpenGLFunctions();
 
-    glClearColor(0, 0, 0, 1);
+//    glClearColor(0, 0, 0, 1);
+    glClearColor(1, 1, 1, 1);
 
     initShaders();
 
@@ -113,17 +187,35 @@ void MainWidget::initializeGL()
     glEnable(GL_DEPTH_TEST);
 
     // Enable back face culling
-    glEnable(GL_CULL_FACE);
+//    glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 //! [2]
+
 
     cubeGeometry = new CubeGeometry;
     initObjects();
+    connect(this, SIGNAL(modelChanged(QQuaternion, Quaternion)),
+            window, SLOT(updateVariables(QQuaternion, Quaternion)));
+
+    cameraQuat = QQuaternion(1, 0, 0, 0);
+    QMatrix4x4 rotateMat;
+    rotateMat.setToIdentity();
+    rotateMat.rotate(cameraQuat);
+    QMatrix4x4 translateMat;
+    translateMat.setToIdentity();
+    translateMat.translate(0, 0, -6);
+
+    viewMatrix = translateMat * rotateMat;
+    timer.start(20, this);
+//    viewMatrix.setToIdentity();
+//    viewMatrix.lookAt(QVector3D(0, 0, -5), QVector3D(0, 0, 0), QVector3D(0, 1, 0));
 }
 
 //! [3]
 void MainWidget::initShaders()
 {
-    // Compile vertex shader
+//     Compile vertex  shader
     if (!program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/vshader.glsl"))
         close();
 
@@ -138,17 +230,59 @@ void MainWidget::initShaders()
     // Bind shader pipeline for use
     if (!program.bind())
         close();
+
+//    static const char *vertexShaderSource =
+//        "attribute highp vec4 a_position;\n"
+//        "void main() {\n"
+//        "   gl_Position = a_position;\n"
+//        "}\n";
+
+//    static const char *fragmentShaderSource =
+//        "void main() {\n"
+//        "   gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n"
+//        "}\n";
+
+//        program2.addShaderFromSourceCode(QOpenGLShader::Vertex, vertexShaderSource);
+//        program2.addShaderFromSourceCode(QOpenGLShader::Fragment, fragmentShaderSource);
+//        program2.link();
+//    program2.bind();
+
 }
 
 void MainWidget::initObjects()
 {
-  objects.append(new SimpleObject3D(cubeGeometry->vertices, cubeGeometry->indices, new QImage(":/cube.png")));
+//  objects.append(new SimpleObject3D(cubeGeometry->vertices, cubeGeometry->indices, new QImage(":/cube.png")));
+  LineGeometry lineGeometry;
+  objects.append(new SimpleObject3D(cubeGeometry->vertices, cubeGeometry->indices, new QImage(":/minecraft.jpg"), GL_TRIANGLE_STRIP));
+//  objects.append(new SimpleObject3D(cubeGeometry->vertices, cubeGeometry->indices, new QImage(":/minecraft.jpg")));
+  objects.append(new SimpleObject3D(lineGeometry.vertices, lineGeometry.indices, new QImage(":/palette.png"), GL_LINES));
+  objects.append(new SimpleObject3D(lineGeometry.vertices, lineGeometry.indices, new QImage(":/palette.png"), GL_LINES));
+  objects[1]->scale(0.5);
+
+  objects[2]->scale(2);
+}
+
+void MainWidget::timerEvent(QTimerEvent *e)
+{
+  if (needToUpdate)
+  {
+    update();
+    auto q = objects[0]->quaternion;
+    emit modelChanged(objects[0]->quaternion, Quaternion(q.scalar(), q.x(), q.y(), q.z()));
+    needToUpdate = false;
+  }
 }
 
 void MainWidget::updateScene(KinematicVariables vars)
 {
   rotation = QQuaternion(vars.scalar, vars.xpos, vars.ypos, vars.zpos).normalized();
-  update();
+  objects[0]->setRotation(rotation);
+  objects[1]->setRotation(rotation);
+  needToUpdate = true;
+//  viewMatrix.setToIdentity();
+//  double scale = 5;
+//  viewMatrix.lookAt(QVector3D(scale*sin(vars.t), 5, -scale*cos(vars.t)), QVector3D(0, 0, 0), QVector3D(0, 1, 0));
+//  update();
 }
 
 void MainWidget::resizeGL(int w, int h)
@@ -157,7 +291,7 @@ void MainWidget::resizeGL(int w, int h)
     qreal aspect = qreal(w) / qreal(h ? h : 1);
 
     // Set near plane to 3.0, far plane to 7.0, field of view 45 degrees
-    const qreal zNear = 3.0, zFar = 7.0, fov = 45.0;
+    const qreal zNear = 3.0, zFar = 70.0, fov = 45.0;
 
     // Reset projection
     projection.setToIdentity();
@@ -175,16 +309,19 @@ void MainWidget::paintGL()
 
     // Calculate model view transformation
     QMatrix4x4 matrix;
-    matrix.translate(0.0, 0.0, -5.0);
-    matrix.rotate(rotation);
+    matrix.translate(0.0, 0.0, -6.0);
+//    matrix.rotate(rotation);
 
+//    matrix.setToIdentity();
     // Set modelview-projection matrix
-    program.setUniformValue("mvp_matrix", projection * matrix);
+
+    program.setUniformValue("u_projectionMatrix", projection);
+    program.setUniformValue("u_viewMatrix", viewMatrix);
 //! [6]
 
     // Use texture unit 0 which contains cube.png
 
     // Draw cube geometry
-    int i = 0;
-    objects[i]->draw(&program);
+    for (int i = 2; i >= 0; --i)
+      objects[i]->draw(&program);
 }

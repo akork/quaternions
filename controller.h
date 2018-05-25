@@ -26,7 +26,10 @@ public slots:
   void ode_integrate();
   void parse_parameters();
   void timer_restart();
+  void animation();
   void integrate_and_start();
+  void reset_ic();
+
 
 private:
   Window * window;
@@ -38,7 +41,10 @@ private:
   Ode * ode;
   Odeint_results odeint_results;
   QBasicTimer timer;
+  state_type ic;
   void timerEvent(QTimerEvent *);
+  bool timerPaused;
+  float alpha, beta, gamma;
 };
 
 #endif // CONTROLLER_H

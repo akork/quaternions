@@ -103,3 +103,20 @@ CubeGeometry::CubeGeometry() :
 {
 
 }
+
+LineGeometry::LineGeometry() :
+    vertices
+    {
+        // Vertex data for face 0
+        {QVector3D(0.0f, 0.0f,  0.0f), QVector2D(0.1f, 0.1f)},  // v0
+        {QVector3D(1.0f, 0.0f,  0.0f), QVector2D(0.1f, 0.1f)},  // v0
+        {QVector3D(0.0f, 0.0f,  0.0f), QVector2D(0.3f, 0.3f)},  // v0
+        {QVector3D( 0.0f, 1.0f,  0.0f), QVector2D(0.3f, 0.3f)}, // v1
+        {QVector3D(0.0f, 0.0f,  0.0f), QVector2D(0.5f, 0.5f)},  // v0
+        {QVector3D( 0.0f, 0.0f,  1.0f), QVector2D(0.5f, 0.5f)} // v1
+    },
+    indices{
+         0,  1, 2, 3, 4, 5
+    }
+{
+}

@@ -62,6 +62,8 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
 #include "kinematicvariables.h"
+#include "simpleline.h"
+#include "quaternion.h"
 
 struct CubeGeometry;
 
@@ -69,34 +71,52 @@ class MainWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
     Q_OBJECT
 
+signals:
+  void modelChanged(QQuaternion quaternion, Quaternion q);
+
 public:
     explicit MainWidget(QWidget *parent = 0);
     ~MainWidget();
+    QVector<SimpleObject3D*> objects;
+    QMatrix4x4 modelMat;
 
 protected:
     void mousePressEvent(QMouseEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *e) override;
+    void mouseMoveEvent(QMouseEvent *e) override;
 
     void initializeGL() override;
     void resizeGL(int w, int h) override;
     void paintGL() override;
 
     void initShaders();
+    QObject *window;
 
 private:
+    bool needToUpdate;
     QOpenGLShaderProgram program;
+    QOpenGLShaderProgram program2;
     CubeGeometry *cubeGeometry;
 
     QOpenGLTexture *texture;
 
     QMatrix4x4 projection;
 
+    QVector2D mousePosition;
     QVector2D mousePressPosition;
     QVector3D rotationAxis;
     qreal angularSpeed;
     QQuaternion rotation;
-    QVector<SimpleObject3D*> objects;
+    QVector<SimpleLine*> lines;
     void initObjects();
+    QQuaternion quaternion;
+    QMatrix4x4 viewMatrix;
+    QMatrix4x4 projectionMatrix;
+    double hor_angle;
+    double vert_angle;
+    QQuaternion cameraQuat;
+    QBasicTimer timer;
+    void timerEvent(QTimerEvent *e);
 
 private slots:
     void updateScene(KinematicVariables vars);

@@ -61,6 +61,7 @@
 
 #include "mainwidget.h"
 #include "controller.h"
+#include "quaternion.h"
 
 QT_BEGIN_NAMESPACE
 class QLabel;
@@ -93,13 +94,19 @@ public:
     QGridLayout *eulerLayout;
 
     QTableWidget *quaternTable;
+    QTableWidget *quaternTable2;
     QTableWidget *eulerTable;
+    QTableWidget *eulerTable2;
     QTableWidget *omegaTable;
+
+    QWidget *buttonsWidget;
+    QPushButton *button1, *button2, *button3;
 
     QLabel *fixedLabel(QString str);
     QLabel *timeLabel;
 private slots:
-    void updateVariables(KinematicVariables vars);
+    void updateVariables(QQuaternion quaternion, Quaternion q);
+    void updateTime(KinematicVariables vars);
 };
 
 #endif // WINDOW_H

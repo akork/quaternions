@@ -64,4 +64,11 @@ struct CubeGeometry
    QVector<GLushort> indices;
 };
 
+struct LineGeometry
+{
+   LineGeometry();
+   QVector<VertexData> vertices;
+   QVector<GLushort> indices;
+};
+
 #endif // GEOMETRYENGINE_H

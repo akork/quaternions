@@ -57,12 +57,15 @@ SOURCES       = ../main.cpp \
 		../ode.cpp \
 		../kinematicvariables.cpp \
 		../simpleobject3d.cpp \
+		../simpleline.cpp \
+		../quaternion.cpp \
 		../mainwidget.cpp \
 		../geometryengine.cpp qrc_shaders.cpp \
 		qrc_textures.cpp \
 		moc_mainwidget.cpp \
 		moc_window.cpp \
-		moc_controller.cpp
+		moc_controller.cpp \
+		moc_simpleobject3d.cpp
 OBJECTS       = main.o \
 		window.o \
 		borderlayout.o \
@@ -70,13 +73,16 @@ OBJECTS       = main.o \
 		ode.o \
 		kinematicvariables.o \
 		simpleobject3d.o \
+		simpleline.o \
+		quaternion.o \
 		mainwidget.o \
 		geometryengine.o \
 		qrc_shaders.o \
 		qrc_textures.o \
 		moc_mainwidget.o \
 		moc_window.o \
-		moc_controller.o
+		moc_controller.o \
+		moc_simpleobject3d.o
 DIST          = /Users/Aleksey/Qt/5.9.1/clang_64/mkspecs/features/spec_pre.prf \
 		/Users/Aleksey/Qt/5.9.1/clang_64/mkspecs/qdevice.pri \
 		/Users/Aleksey/Qt/5.9.1/clang_64/mkspecs/features/device_config.prf \
@@ -255,13 +261,17 @@ DIST          = /Users/Aleksey/Qt/5.9.1/clang_64/mkspecs/features/spec_pre.prf \
 		../controller.h \
 		../ode.h \
 		../kinematicvariables.h \
-		../simpleobject3d.h ../main.cpp \
+		../simpleobject3d.h \
+		../simpleline.h \
+		../quaternion.h ../main.cpp \
 		../window.cpp \
 		../borderlayout.cpp \
 		../controller.cpp \
 		../ode.cpp \
 		../kinematicvariables.cpp \
 		../simpleobject3d.cpp \
+		../simpleline.cpp \
+		../quaternion.cpp \
 		../mainwidget.cpp \
 		../geometryengine.cpp
 QMAKE_TARGET  = cube
@@ -667,8 +677,8 @@ distdir: FORCE
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents ../shaders.qrc ../textures.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /Users/Aleksey/Qt/5.9.1/clang_64/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents ../mainwidget.h ../geometryengine.h ../window.h ../borderlayout.h ../controller.h ../ode.h ../kinematicvariables.h ../simpleobject3d.h $(DISTDIR)/
-	$(COPY_FILE) --parents ../main.cpp ../window.cpp ../borderlayout.cpp ../controller.cpp ../ode.cpp ../kinematicvariables.cpp ../simpleobject3d.cpp ../mainwidget.cpp ../geometryengine.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents ../mainwidget.h ../geometryengine.h ../window.h ../borderlayout.h ../controller.h ../ode.h ../kinematicvariables.h ../simpleobject3d.h ../simpleline.h ../quaternion.h $(DISTDIR)/
+	$(COPY_FILE) --parents ../main.cpp ../window.cpp ../borderlayout.cpp ../controller.cpp ../ode.cpp ../kinematicvariables.cpp ../simpleobject3d.cpp ../simpleline.cpp ../quaternion.cpp ../mainwidget.cpp ../geometryengine.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -703,6 +713,10 @@ qrc_shaders.cpp: ../shaders.qrc \
 
 qrc_textures.cpp: ../textures.qrc \
 		/Users/Aleksey/Qt/5.9.1/clang_64/bin/rcc \
+		../rainbow.jpg \
+		../rainbow2.jpg \
+		../palette.png \
+		../minecraft.jpg \
 		../cube.png
 	/Users/Aleksey/Qt/5.9.1/clang_64/bin/rcc -name textures ../textures.qrc -o qrc_textures.cpp
 
@@ -712,9 +726,9 @@ compiler_moc_predefs_clean:
 moc_predefs.h: /Users/Aleksey/Qt/5.9.1/clang_64/mkspecs/features/data/dummy.cpp
 	/Applications/Xcode.app/Contents/Developer/usr/bin/g++ -pipe -g -std=gnu++1y $(EXPORT_ARCH_ARGS) -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk -mmacosx-version-min=10.10 -Wall -W -dM -E -o moc_predefs.h /Users/Aleksey/Qt/5.9.1/clang_64/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_mainwidget.cpp moc_window.cpp moc_controller.cpp
+compiler_moc_header_make_all: moc_mainwidget.cpp moc_window.cpp moc_controller.cpp moc_simpleobject3d.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_mainwidget.cpp moc_window.cpp moc_controller.cpp
+	-$(DEL_FILE) moc_mainwidget.cpp moc_window.cpp moc_controller.cpp moc_simpleobject3d.cpp
 moc_mainwidget.cpp: ../geometryengine.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLFunctions \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglfunctions.h \
@@ -722,19 +736,28 @@ moc_mainwidget.cpp: ../geometryengine.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglshaderprogram.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLBuffer \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglbuffer.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QOpenGLWidget \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qopenglwidget.h \
+		../simpleobject3d.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QMatrix4x4 \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qmatrix4x4.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QQuaternion \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qquaternion.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QVector3D \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qvector3d.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QVector2D \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qvector2d.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QBasicTimer \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qbasictimer.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QObject \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qobject.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLTexture \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopengltexture.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QOpenGLWidget \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qopenglwidget.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QQuaternion \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qquaternion.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QBasicTimer \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qbasictimer.h \
 		../kinematicvariables.h \
+		../simpleline.h \
+		../quaternion.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QMatrix3x3 \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qgenericmatrix.h \
 		../mainwidget.h \
 		moc_predefs.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/bin/moc
@@ -762,24 +785,31 @@ moc_window.cpp: /Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglshaderprogram.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLBuffer \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglbuffer.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QOpenGLWidget \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qopenglwidget.h \
+		../simpleobject3d.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QMatrix4x4 \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qmatrix4x4.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QQuaternion \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qquaternion.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QVector3D \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qvector3d.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QVector2D \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qvector2d.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QBasicTimer \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qbasictimer.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QObject \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qobject.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLTexture \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopengltexture.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QOpenGLWidget \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qopenglwidget.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QQuaternion \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qquaternion.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QBasicTimer \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qbasictimer.h \
 		../kinematicvariables.h \
+		../simpleline.h \
+		../quaternion.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QMatrix3x3 \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qgenericmatrix.h \
 		../controller.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QDebug \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qdebug.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QObject \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qobject.h \
 		../window.h \
 		../ode.h \
 		../exprtk/exprtk.hpp \
@@ -2836,19 +2866,26 @@ moc_controller.cpp: /Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Header
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglshaderprogram.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLBuffer \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglbuffer.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QOpenGLWidget \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qopenglwidget.h \
+		../simpleobject3d.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QMatrix4x4 \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qmatrix4x4.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QQuaternion \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qquaternion.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QVector3D \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qvector3d.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QVector2D \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qvector2d.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QBasicTimer \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qbasictimer.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLTexture \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopengltexture.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QOpenGLWidget \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qopenglwidget.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QQuaternion \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qquaternion.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QBasicTimer \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qbasictimer.h \
 		../kinematicvariables.h \
+		../simpleline.h \
+		../quaternion.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QMatrix3x3 \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qgenericmatrix.h \
 		../controller.h \
 		../ode.h \
 		../exprtk/exprtk.hpp \
@@ -4878,6 +4915,27 @@ moc_controller.cpp: /Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Header
 		/Users/Aleksey/Qt/5.9.1/clang_64/bin/moc
 	/Users/Aleksey/Qt/5.9.1/clang_64/bin/moc $(DEFINES) --include ./moc_predefs.h -I/Users/Aleksey/Qt/5.9.1/clang_64/mkspecs/macx-g++ -I/Users/Aleksey/Dropbox/Studies/_CS/opengl/quaternions -I/usr/local/Cellar/boost/1.67.0_1/include -I/exprtk -I/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers -I/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers -I/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers -I. -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/9.1.0/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/9.1.0/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/usr/include -F/Users/Aleksey/Qt/5.9.1/clang_64/lib ../controller.h -o moc_controller.cpp
 
+moc_simpleobject3d.cpp: /Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLBuffer \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglbuffer.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QMatrix4x4 \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qmatrix4x4.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QVector3D \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qvector3d.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QVector2D \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qvector2d.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLFunctions \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglfunctions.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QObject \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qobject.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLTexture \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopengltexture.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLShaderProgram \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglshaderprogram.h \
+		../simpleobject3d.h \
+		moc_predefs.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/bin/moc
+	/Users/Aleksey/Qt/5.9.1/clang_64/bin/moc $(DEFINES) --include ./moc_predefs.h -I/Users/Aleksey/Qt/5.9.1/clang_64/mkspecs/macx-g++ -I/Users/Aleksey/Dropbox/Studies/_CS/opengl/quaternions -I/usr/local/Cellar/boost/1.67.0_1/include -I/exprtk -I/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers -I/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers -I/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers -I. -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/9.1.0/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/9.1.0/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/usr/include -F/Users/Aleksey/Qt/5.9.1/clang_64/lib ../simpleobject3d.h -o moc_simpleobject3d.cpp
+
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
 compiler_uic_make_all:
@@ -4925,24 +4983,31 @@ main.o: ../main.cpp /Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Hea
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglshaderprogram.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLBuffer \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglbuffer.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QOpenGLWidget \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qopenglwidget.h \
+		../simpleobject3d.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QMatrix4x4 \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qmatrix4x4.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QQuaternion \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qquaternion.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QVector3D \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qvector3d.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QVector2D \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qvector2d.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QBasicTimer \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qbasictimer.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QObject \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qobject.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLTexture \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopengltexture.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QOpenGLWidget \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qopenglwidget.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QQuaternion \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qquaternion.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QBasicTimer \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qbasictimer.h \
 		../kinematicvariables.h \
+		../simpleline.h \
+		../quaternion.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QMatrix3x3 \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qgenericmatrix.h \
 		../controller.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QDebug \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qdebug.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QObject \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qobject.h \
 		../ode.h \
 		../exprtk/exprtk.hpp \
 		/usr/local/Cellar/boost/1.67.0_1/include/boost/numeric/odeint.hpp \
@@ -6996,24 +7061,31 @@ window.o: ../window.cpp ../borderlayout.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglshaderprogram.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLBuffer \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglbuffer.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QOpenGLWidget \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qopenglwidget.h \
+		../simpleobject3d.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QMatrix4x4 \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qmatrix4x4.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QQuaternion \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qquaternion.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QVector3D \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qvector3d.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QVector2D \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qvector2d.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QBasicTimer \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qbasictimer.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QObject \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qobject.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLTexture \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopengltexture.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QOpenGLWidget \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qopenglwidget.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QQuaternion \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qquaternion.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QBasicTimer \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qbasictimer.h \
 		../kinematicvariables.h \
+		../simpleline.h \
+		../quaternion.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QMatrix3x3 \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qgenericmatrix.h \
 		../controller.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QDebug \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qdebug.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QObject \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qobject.h \
 		../ode.h \
 		../exprtk/exprtk.hpp \
 		/usr/local/Cellar/boost/1.67.0_1/include/boost/numeric/odeint.hpp \
@@ -9044,7 +9116,11 @@ window.o: ../window.cpp ../borderlayout.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QHeaderView \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qheaderview.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QSizePolicy \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qsizepolicy.h
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qsizepolicy.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QLineEdit \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qlineedit.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QPushButton \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qpushbutton.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o window.o ../window.cpp
 
 borderlayout.o: ../borderlayout.cpp ../borderlayout.h \
@@ -9082,19 +9158,26 @@ controller.o: ../controller.cpp ../controller.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglshaderprogram.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLBuffer \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglbuffer.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QOpenGLWidget \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qopenglwidget.h \
+		../simpleobject3d.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QMatrix4x4 \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qmatrix4x4.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QQuaternion \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qquaternion.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QVector3D \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qvector3d.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QVector2D \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qvector2d.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QBasicTimer \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qbasictimer.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLTexture \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopengltexture.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QOpenGLWidget \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qopenglwidget.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QQuaternion \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qquaternion.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QBasicTimer \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qbasictimer.h \
 		../kinematicvariables.h \
+		../simpleline.h \
+		../quaternion.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QMatrix3x3 \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qgenericmatrix.h \
 		../ode.h \
 		../exprtk/exprtk.hpp \
 		/usr/local/Cellar/boost/1.67.0_1/include/boost/numeric/odeint.hpp \
@@ -13155,13 +13238,48 @@ simpleobject3d.o: ../simpleobject3d.cpp ../simpleobject3d.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglbuffer.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QMatrix4x4 \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qmatrix4x4.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLTexture \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopengltexture.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QVector3D \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qvector3d.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QVector2D \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qvector2d.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLFunctions \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglfunctions.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QObject \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qobject.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLTexture \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopengltexture.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLShaderProgram \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglshaderprogram.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o simpleobject3d.o ../simpleobject3d.cpp
+
+simpleline.o: ../simpleline.cpp ../simpleline.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLBuffer \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglbuffer.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QMatrix4x4 \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qmatrix4x4.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QVector3D \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qvector3d.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QVector2D \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qvector2d.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLFunctions \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglfunctions.h \
+		../simpleobject3d.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QObject \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qobject.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLTexture \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopengltexture.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLShaderProgram \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglshaderprogram.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o simpleline.o ../simpleline.cpp
+
+quaternion.o: ../quaternion.cpp ../quaternion.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QVector3D \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qvector3d.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QMatrix3x3 \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qgenericmatrix.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QDebug \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qdebug.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o quaternion.o ../quaternion.cpp
 
 mainwidget.o: ../mainwidget.cpp ../mainwidget.h \
 		../geometryengine.h \
@@ -13171,19 +13289,28 @@ mainwidget.o: ../mainwidget.cpp ../mainwidget.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglshaderprogram.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLBuffer \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglbuffer.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QOpenGLWidget \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qopenglwidget.h \
+		../simpleobject3d.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QMatrix4x4 \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qmatrix4x4.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QQuaternion \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qquaternion.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QVector3D \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qvector3d.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QVector2D \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qvector2d.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QBasicTimer \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qbasictimer.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QObject \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qobject.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLTexture \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopengltexture.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QOpenGLWidget \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qopenglwidget.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QQuaternion \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qquaternion.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QBasicTimer \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qbasictimer.h \
 		../kinematicvariables.h \
+		../simpleline.h \
+		../quaternion.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QMatrix3x3 \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qgenericmatrix.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QMouseEvent \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qevent.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QVector \
@@ -13197,10 +13324,17 @@ geometryengine.o: ../geometryengine.cpp ../geometryengine.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglshaderprogram.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLBuffer \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopenglbuffer.h \
+		../simpleobject3d.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QMatrix4x4 \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qmatrix4x4.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QVector3D \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qvector3d.h \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QVector2D \
 		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qvector2d.h \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QVector3D \
-		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qvector3d.h
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QObject \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qobject.h \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/QOpenGLTexture \
+		/Users/Aleksey/Qt/5.9.1/clang_64/lib/QtGui.framework/Headers/qopengltexture.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o geometryengine.o ../geometryengine.cpp
 
 qrc_shaders.o: qrc_shaders.cpp 
@@ -13217,6 +13351,9 @@ moc_window.o: moc_window.cpp
 
 moc_controller.o: moc_controller.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_controller.o moc_controller.cpp
+
+moc_simpleobject3d.o: moc_simpleobject3d.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_simpleobject3d.o moc_simpleobject3d.cpp
 
 ####### Install
 

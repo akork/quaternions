@@ -11,9 +11,9 @@ void Controller::ode_integrate()
   parse_parameters();
   ode = new Ode(expr_strings);
   runge_kutta4<state_type> stepper;
-  state_type x = {{ 1.0 , 1.0 , 1.0, 1.0 }}; // initial conditions
+//  state_type x = {{ 1.0 , 0.0 , 0.0, 0.0 }}; // initial conditions
   odeint_results.clear();
-  integrate_const(stepper, *ode, x, 0.0, tend, step, odeint_results);
+  integrate_const(stepper, *ode, ic, 0.0, tend + step, step, odeint_results);
 }
 
 void Controller::parse_parameters()
@@ -39,6 +39,21 @@ void Controller::parse_parameters()
       "(" + omega[1] + ")*q1)";
   tend = window->omegaTable->item(3, 1)->text().toDouble();
   step = window->omegaTable->item(4, 1)->text().toDouble();
+  ic = {{
+          window->quaternTable->item(0, 1)->text().toDouble(),
+          window->quaternTable->item(1, 1)->text().toDouble(),
+          window->quaternTable->item(2, 1)->text().toDouble(),
+          window->quaternTable->item(3, 1)->text().toDouble(),
+        }};
+
+//  alpha =  window->eulerTable->item(0, 1)->text().toDouble() * M_PI / 180;
+//  beta =  window->eulerTable->item(1, 1)->text().toDouble() * M_PI / 180;
+//  gamma =  window->eulerTable->item(2, 1)->text().toDouble() * M_PI / 180;
+//      auto q = Quaternion::fromEulerAngles(alpha, beta, gamma);
+//      ic[0] = q.getW();
+//      ic[1] = q.getX();
+//      ic[2] = q.getY();
+//      ic[3] = q.getZ();
 }
 
 void Controller::timer_restart()
@@ -46,6 +61,22 @@ void Controller::timer_restart()
   t = 0;
   timer.stop();
   timer.start(20, this);
+  timerPaused = false;
+}
+
+void Controller::animation()
+{
+  if (timer.isActive()) {
+    timerPaused = true;
+    timer.stop();
+  } else {
+    if (timerPaused)
+    {
+      timer.start(20, this);
+    } else {
+      timer_restart();
+    }
+  }
 }
 
 void Controller::integrate_and_start()
@@ -54,11 +85,38 @@ void Controller::integrate_and_start()
   timer_restart();
 }
 
+void Controller::reset_ic()
+{
+  timer.stop();
+    window->quaternTable->setItem(0, 1, new QTableWidgetItem("1"));
+    window->quaternTable->setItem(1, 1, new QTableWidgetItem("0"));
+    window->quaternTable->setItem(2, 1, new QTableWidgetItem("0"));
+    window->quaternTable->setItem(3, 1, new QTableWidgetItem("0"));
+
+    window->eulerTable->setItem(0, 1, new QTableWidgetItem("0"));
+    window->eulerTable->setItem(1, 1, new QTableWidgetItem("0"));
+    window->eulerTable->setItem(2, 1, new QTableWidgetItem("0"));
+
+    parse_parameters();
+    state_type q = ic;
+    auto eulerAngles = QQuaternion(q[0], q[1], q[2], q[3]).normalized().toEulerAngles();
+    auto vars = KinematicVariables {
+        q[0],
+        q[1],
+        q[2],
+        q[3],
+        eulerAngles.x(),
+        eulerAngles.y(),
+        eulerAngles.z(),
+        t
+    };
+    emit state_changed(vars);
+}
+
 void Controller::timerEvent(QTimerEvent *)
 {
-
     t += 0.02;
-    if (t >= 24) { timer.stop(); return; }
+    if (t >= tend) { timer.stop(); timerPaused = false; return; }
     state_type q = odeint_results.interp(t);
     auto eulerAngles = QQuaternion(q[0], q[1], q[2], q[3]).normalized().toEulerAngles();
     auto vars = KinematicVariables {
@@ -72,4 +130,11 @@ void Controller::timerEvent(QTimerEvent *)
         t
     };
     emit state_changed(vars);
+
+//window->mainWidget->setModelRotation(quaternion);
+//window->updateVariables(quaternion);
+//objects[0]->setRotation(rotation);
+//objects[1]->setRotation(rotation);
+//needToUpdate = true;
+
 }

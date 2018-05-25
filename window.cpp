@@ -56,6 +56,7 @@
 #include <QHeaderView>
 #include <QSizePolicy>
 #include <QLineEdit>
+#include <QPushButton>
 
 QLabel * Window::fixedLabel(QString str)
 {
@@ -69,7 +70,7 @@ QTableWidget * Window::createTable(int nrows, int ncols)
     auto tableWidget = new QTableWidget();
     tableWidget->setRowCount(nrows);
     tableWidget->setColumnCount(ncols);
-    tableWidget->setColumnWidth(0, 50);
+    tableWidget->setColumnWidth(0, 60);
     tableWidget->setColumnWidth(1, 70);
     tableWidget->verticalHeader()->hide();
     tableWidget->horizontalHeader()->hide();
@@ -91,63 +92,110 @@ QTableWidget * Window::createTable(int nrows, int ncols)
 
 Window::Window()
 {
-    mainWidget = new MainWidget;
+    mainWidget = new MainWidget(this);
 
-    setWindowTitle(tr("Border Layout"));
+    setWindowTitle(tr("Quaternion"));
 
     timeLabel = fixedLabel("");
     quaternTable = createTable(4, 2);
     quaternTable->setItem(0, 0, new QTableWidgetItem("scalar"));
-    quaternTable->setItem(1, 0, new QTableWidgetItem("xpos"));
-    quaternTable->setItem(2, 0, new QTableWidgetItem("ypos"));
-    quaternTable->setItem(3, 0, new QTableWidgetItem("zpos"));
+    quaternTable->setItem(1, 0, new QTableWidgetItem("x"));
+    quaternTable->setItem(2, 0, new QTableWidgetItem("y"));
+    quaternTable->setItem(3, 0, new QTableWidgetItem("z"));
+    quaternTable->setItem(0, 1, new QTableWidgetItem("1"));
+    quaternTable->setItem(1, 1, new QTableWidgetItem("0"));
+    quaternTable->setItem(2, 1, new QTableWidgetItem("0"));
+    quaternTable->setItem(3, 1, new QTableWidgetItem("0"));
+
+    quaternTable2 = createTable(4, 2);
+    quaternTable2->setItem(0, 0, new QTableWidgetItem("scalar"));
+    quaternTable2->setItem(1, 0, new QTableWidgetItem("x"));
+    quaternTable2->setItem(2, 0, new QTableWidgetItem("y"));
+    quaternTable2->setItem(3, 0, new QTableWidgetItem("z"));
+    quaternTable2->setItem(0, 1, new QTableWidgetItem("1"));
+    quaternTable2->setItem(1, 1, new QTableWidgetItem("0"));
+    quaternTable2->setItem(2, 1, new QTableWidgetItem("0"));
+    quaternTable2->setItem(3, 1, new QTableWidgetItem("0"));
 
     eulerTable = createTable(3, 2);
     eulerTable->setItem(0, 0, new QTableWidgetItem("alpha"));
     eulerTable->setItem(1, 0, new QTableWidgetItem("beta"));
     eulerTable->setItem(2, 0, new QTableWidgetItem("gamma"));
+    eulerTable->setItem(0, 1, new QTableWidgetItem("0"));
+    eulerTable->setItem(1, 1, new QTableWidgetItem("0"));
+    eulerTable->setItem(2, 1, new QTableWidgetItem("0"));
+
+    eulerTable2 = createTable(3, 2);
+    eulerTable2->setItem(0, 0, new QTableWidgetItem("alpha"));
+    eulerTable2->setItem(1, 0, new QTableWidgetItem("beta"));
+    eulerTable2->setItem(2, 0, new QTableWidgetItem("gamma"));
 
     omegaTable = createTable(5, 2);
-    omegaTable->setItem(0, 0, new QTableWidgetItem("omega1"));
-    omegaTable->setItem(1, 0, new QTableWidgetItem("omega2"));
-    omegaTable->setItem(2, 0, new QTableWidgetItem("omega3"));
+    omegaTable->setItem(0, 0, new QTableWidgetItem("o1"));
+    omegaTable->setItem(1, 0, new QTableWidgetItem("o2"));
+    omegaTable->setItem(2, 0, new QTableWidgetItem("o3"));
     omegaTable->setItem(3, 0, new QTableWidgetItem("tend"));
-    omegaTable->setItem(4, 0, new QTableWidgetItem("шаг"));
+    omegaTable->setItem(4, 0, new QTableWidgetItem("step"));
     omegaTable->setItem(0, 1, new QTableWidgetItem("0"));
     omegaTable->setItem(1, 1, new QTableWidgetItem("1"));
     omegaTable->setItem(2, 1, new QTableWidgetItem("0"));
-    omegaTable->setItem(3, 1, new QTableWidgetItem("30"));
+    omegaTable->setItem(3, 1, new QTableWidgetItem("10"));
     omegaTable->setItem(4, 1, new QTableWidgetItem("0.1"));
     for (int i = 0; i < 3; ++i)
       omegaTable->item(i, 0)->setFlags(
             omegaTable->item(i, 0)->flags() ^ Qt::ItemIsEditable);
 
+    buttonsWidget = new QWidget(this);
+    button1 = new QPushButton("Сброс");
+    button2 = new QPushButton("Анимация");
+    button3 = new QPushButton("Расчет и анимация");
+    auto layout = new QGridLayout;
+    layout->setVerticalSpacing(1);
+    layout->setHorizontalSpacing(1);
+
+    layout->addWidget(button1, 0, 0);
+    layout->addWidget(button2, 0, 1);
+    layout->addWidget(button3, 1, 0, 1, 2);
+    buttonsWidget->setLayout(layout);
+
     auto leftLayout = new QVBoxLayout;
     leftLayout->addWidget(timeLabel);
     leftLayout->addWidget(fixedLabel("Кватернион"));
     leftLayout->addWidget(quaternTable);
+//    leftLayout->addWidget(fixedLabel("Кватернион2"));
+//    leftLayout->addWidget(quaternTable2);
+//    leftLayout->addWidget(fixedLabel("Углы эйлера"));
+//    leftLayout->addWidget(eulerTable);
     leftLayout->addWidget(fixedLabel("Углы эйлера"));
-    leftLayout->addWidget(eulerTable);
+    leftLayout->addWidget(eulerTable2);
     leftLayout->addWidget(fixedLabel("Угловая скорость"));
     leftLayout->addWidget(omegaTable);
+    leftLayout->addWidget(buttonsWidget);
     leftLayout->addWidget(new QWidget);
 
-    auto leftWidget = new QWidget;
+    auto leftWidget = new QWidget(this);
     leftWidget->setLayout(leftLayout);
     leftWidget->setMaximumWidth(200);
 
-    auto layout = new QGridLayout;
-    layout->addWidget(leftWidget, 0, 0);
-    layout->addWidget(mainWidget, 0, 1);
-    setLayout(layout);
+    auto layout2 = new QGridLayout;
+    layout2->addWidget(leftWidget, 0, 0);
+    layout2->addWidget(mainWidget, 0, 1);
+    setLayout(layout2);
+
 
     controller = new Controller(this, this);
 
     connect(controller, SIGNAL(state_changed(KinematicVariables)),
             mainWidget, SLOT(updateScene(KinematicVariables)));
     connect(controller, SIGNAL(state_changed(KinematicVariables)),
-            this, SLOT(updateVariables(KinematicVariables)));
-    connect(omegaTable, SIGNAL(cellChanged(int,int)),
+            this, SLOT(updateTime(KinematicVariables)));
+//    connect(omegaTable, SIGNAL(cellChanged(int,int)),
+//            controller, SLOT(integrate_and_start()));
+    connect(button1, SIGNAL(clicked()),
+            controller, SLOT(reset_ic()));
+    connect(button2, SIGNAL(clicked()),
+            controller, SLOT(animation()));
+    connect(button3, SIGNAL(clicked()),
             controller, SLOT(integrate_and_start()));
 }
 
@@ -163,16 +211,32 @@ auto tableItemFromNumber(float num)
   return new QTableWidgetItem(QString::number(num));
 }
 
-void Window::updateVariables(KinematicVariables vars)
+void Window::updateVariables(QQuaternion quaternion, Quaternion q)
 {
-    quaternTable->setItem(0, 1, tableItemFromNumber(vars.scalar));
-    quaternTable->setItem(1, 1, tableItemFromNumber(vars.xpos));
-    quaternTable->setItem(2, 1, tableItemFromNumber(vars.ypos));
-    quaternTable->setItem(3, 1, tableItemFromNumber(vars.zpos));
+    quaternTable->setItem(0, 1, tableItemFromNumber(quaternion.scalar()));
+    quaternTable->setItem(1, 1, tableItemFromNumber(quaternion.x()));
+    quaternTable->setItem(2, 1, tableItemFromNumber(quaternion.y()));
+    quaternTable->setItem(3, 1, tableItemFromNumber(quaternion.z()));
 
-    timeLabel->setText("Время: " + QString::number(vars.t));
+    QVector3D angles = quaternion.toEulerAngles();
 
-//    quaternTable->setItem(0, 1, QString::number(vars.scalar));
-//    quaternTable->setItem(1, 1, QString::number(vars.scalar));
-//    quaternTable->setItem(2, 1, QString::number(vars.scalar));
+    eulerTable->setItem(0, 1, tableItemFromNumber(angles.x()));
+    eulerTable->setItem(1, 1, tableItemFromNumber(angles.y()));
+    eulerTable->setItem(2, 1, tableItemFromNumber(angles.z()));
+
+    quaternTable2->setItem(0, 1, tableItemFromNumber(q.getW()));
+    quaternTable2->setItem(1, 1, tableItemFromNumber(q.getX()));
+    quaternTable2->setItem(2, 1, tableItemFromNumber(q.getY()));
+    quaternTable2->setItem(3, 1, tableItemFromNumber(q.getZ()));
+
+    angles = q.toEulerAngles();
+
+    eulerTable2->setItem(0, 1, tableItemFromNumber(angles.x()));
+    eulerTable2->setItem(1, 1, tableItemFromNumber(angles.y()));
+    eulerTable2->setItem(2, 1, tableItemFromNumber(angles.z()));
+}
+
+void Window::updateTime(KinematicVariables vars)
+{
+  timeLabel->setText("Время: " + QString::number(vars.t));
 }

@@ -14,7 +14,9 @@ SOURCES += main.cpp \
     controller.cpp \
     ode.cpp \
     kinematicvariables.cpp \
-    simpleobject3d.cpp
+    simpleobject3d.cpp \
+    simpleline.cpp \
+    quaternion.cpp
 
 SOURCES += \
     mainwidget.cpp \
@@ -28,7 +30,9 @@ HEADERS += \
     controller.h \
     ode.h \
     kinematicvariables.h \
-    simpleobject3d.h
+    simpleobject3d.h \
+    simpleline.h \
+    quaternion.h
 
 RESOURCES += \
     shaders.qrc \
